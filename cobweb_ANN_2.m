@@ -1,5 +1,5 @@
 % In this script we simulate cobweb model with ANN with sigmoid activation function
-% ANN learns parameters alpha2 and beta2 and converges to REE values
+% ANN learns parameters alpha2 and beta2 and converges to RE equilibrium values
 % References used for this code are Evans & Honkapohja (2001) and notes from briandolhansky.com
 % code is written by Sarunas Girdenas, August, 2014, sg325@exeter.ac.uk
 
