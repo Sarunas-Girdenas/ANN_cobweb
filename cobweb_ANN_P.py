@@ -48,11 +48,11 @@ p[1] = alpha_1+c*a[1]+delta*g_lag[1]+sigma*Shocks[1] #Initial values of p and a
 
 # Neural Network initialization
 
-max_iter = 100                 # no of network iterations
-alpha_n  = 0.0001              # gradient descent learning rate, calibrate it to change convergence properties of ANN
-w        = np.zeros([1,2])     # weights for Neural Network 
-grad_t_h = np.zeros([time,2])  # store network activation function
-
+max_iter = 100                    # no of network iterations
+alpha_n  = 0.0001                 # gradient descent learning rate, calibrate it to change convergence properties of ANN
+w        = np.zeros([1,2])        # weights for Neural Network 
+grad_t_h = np.zeros([time,2])     # store network activation function
+h_hist   = np.zeros([max_iter,1]) # store loss function
 
 
 for i in range(2,time):
@@ -84,12 +84,18 @@ for i in range(2,time):
             h = np.dot(w,x_t) - y_t
             grad_t = grad_t + 2*x_t*h
             B = 2*x_t*h
-            
-    # update weights
 
-    w = w - alpha_n*grad_t
+        # update weights
+
+        w = w - alpha_n*grad_t
+
+        # compute & store loss function
+
+        h_hist[k,:] = np.sum(h**2)
+            
 
     # update economic model estimates
+
     alpha_2[i] = w[0][0]
     beta_2[i]  = w[0][1]
 
@@ -118,4 +124,10 @@ plt.plot(grad_t_h[:,1],'m-.o',label='Activation Function for Beta_2')
 plt.xlabel('Time Horizon')
 plt.title('Linear Activation Function')
 plt.legend(loc='upper right')
+plt.show()
+
+plt.figure
+plt.plot(h_hist[1:],'b-.o')
+plt.xlabel('Time Horizon')
+plt.title('Loss Function')
 plt.show()
