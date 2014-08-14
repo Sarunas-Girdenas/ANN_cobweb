@@ -17,7 +17,7 @@ g_var  = np.genfromtxt('w_lag.txt', delimiter=',')      # g (exogenous variable)
 alpha_1  = 5                        # price equation intercept
 c        = -0.5                     # beta_0 + beta_1 in Economic Model
 sigma    = 0.5                      # variance of shock
-time     = 500                      # simulation horizon
+time     = 100                      # simulation horizon
 a        = np.zeros([time,1])       # expected price level
 p        = np.zeros([time,1])       # actual price level
 alpha_2  = np.zeros([time,1])       # parameter alpha_2 in Economic Model
@@ -48,10 +48,11 @@ p[1] = alpha_1+c*a[1]+delta*g_lag[1]+sigma*Shocks[1] #Initial values of p and a
 
 # Neural Network initialization
 
-max_iter = 100;                # no of network iterations
-alpha_n  = 0.01;             # gradient descent learning rate, calibrate it to change convergence properties of ANN
-w        = np.zeros([1,2])     # weights for Neural Network 
-grad_t_h = np.zeros([time,2])  # store network activation function
+max_iter = 100;                   # no of network iterations
+alpha_n  = 0.01;                  # gradient descent learning rate, calibrate it to change convergence properties of ANN
+w        = np.zeros([1,2])        # weights for Neural Network 
+grad_t_h = np.zeros([time,2])     # store network activation function
+h_hist   = np.zeros([max_iter,1]) # store loss function
 
 
 
@@ -84,12 +85,17 @@ for i in range(2,time):
             h = np.dot(w,x_t) - y_t
             grad_t = grad_t + 2*h*x_t*np.exp(-np.dot(w,x_t))/((1+np.exp(-np.dot(w,x_t))**(2)))
             B = 2*h*x_t*np.exp(-np.dot(w,x_t))/((1+np.exp(-np.dot(w,x_t))**(2)))
-            
-    # update weights
 
-    w = w - alpha_n*grad_t
+        # update weights
+
+        w = w - alpha_n*grad_t
+
+        # compute & save loss function
+
+        h_hist[k,:] = np.sum(h**2)
 
     # update economic model estimates
+
     alpha_2[i] = w[0][0]
     beta_2[i]  = w[0][1]
 
@@ -117,4 +123,10 @@ plt.plot(grad_t_h[:,1],'m-.o',label='Activation Function for Beta_2')
 plt.xlabel('Time Horizon')
 plt.title('Sigmoid Activation Function')
 plt.legend(loc='upper right')
+plt.show()
+
+plt.figure
+plt.plot(h_hist[1:],'b-.o')
+plt.xlabel('Time Horizon')
+plt.title('Loss Function')
 plt.show()
