@@ -44,10 +44,11 @@ p(1) = alpha_1+c*a(1)+delta*g_lag(1)+sigma*Shocks(1,1); %Initial values of p and
 
 % Neural Network initialization
 
-max_iter = 100;           % no of network iterations
-alpha_n  = 0.0001;        % gradient descent learning rate, calibrate it to change convergence properties of ANN
-w        = zeros(1,2);    % weights for Neural Network 
-grad_t_h = zeros(time,2); % store network activation function
+max_iter = 100;               % no of network iterations
+alpha_n  = 0.0001;            % gradient descent learning rate, calibrate it to change convergence properties of ANN
+w        = zeros(1,2);        % weights for Neural Network 
+grad_t_h = zeros(time,1);     % store network activation function
+h_hist   = zeros(max_iter,1); % save loss function
 
 % simulate the model
 
@@ -77,12 +78,14 @@ for i = 2:time
 
 					h = w*x_t' - y_t;          % compute hypothesis for each observation
 					grad_t = grad_t + 2*x_t*h; % sum hypothesis
-					B = 2*x_t*h;               % store activation function
+					B = w*x_t';                % store activation function
 					             
 				end
 			
 			w = w - alpha_n*grad_t; % update gradient descent
-		
+
+			h_hist(k,1) = sum(h.^2); % save loss function
+
 		end
 
 		% update economic model estimates
@@ -126,6 +129,12 @@ legend('Simulated Series from ANN', 'REE Value')
 % activation function
 
 figure;
-plot(grad_t_h);
+plot(grad_t_h,'k');
 xlabel('Simulation Horizon')
-legend('Linear Activation Function for \alpha_2','Linear Activation Function for \beta_2');
+legend('Linear Activation Function');
+
+% loss function
+
+figure;
+plot(h_hist,'k');
+xlabel('Simulation Horizon')
