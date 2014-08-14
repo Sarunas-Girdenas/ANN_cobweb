@@ -1,7 +1,8 @@
 % In this script we simulate cobweb model with ANN with sigmoid activation function
-% ANN learns parameters alpha2 and beta2 and converges to RE equilibrium values
+% ANN learns parameters alpha2 and beta2 and converges to REE values
 % References used for this code are Evans & Honkapohja (2001) and notes from briandolhansky.com
 % code is written by Sarunas Girdenas, August, 2014, sg325@exeter.ac.uk
+% note that this file requires gridfit.m script for 3D plotting. It could be obtained from Matlab Central
 
 % Firstly, we load the same values of exogenous variable g 
 
@@ -13,7 +14,7 @@ Shocks = load('Shocks_var.txt');  % shocks
 alpha_1  = 5;                      % price equation intercept
 c        = -0.5;                   % beta_0 + beta_1 in Economic Model
 sigma    = 0.5;                    % variance of shock
-time     = 500; 				   % simulation horizon
+time     = 300; 				   % simulation horizon
 a        = zeros(time,1); 		   % expected price level
 p        = zeros(time,1);          % actual price level
 alpha_2  = zeros(time,1);		   % parameter alpha_2 in Economic Model
@@ -49,6 +50,8 @@ alpha_n  = 0.01;          % gradient descent learning rate, calibrate it to chan
 w        = zeros(1,2);    % weights for Neural Network 
 grad_t_h = zeros(time,2); % store network activation function
 
+h_hist   = zeros(max_iter,1); % save loss function
+
 % simulate the model
 
 for i = 2:time
@@ -78,11 +81,12 @@ for i = 2:time
 					h = w*x_t' - y_t;                                               % compute hypothesis for each observation
 					grad_t = grad_t + 2*h*x_t*exp(-w*x_t')/((1+exp(-w*x_t'))^(2));  % sum hypothesis (we use sigmoid function here)
 					B = 2*h*x_t*exp(-w*x_t')/((1+exp(-w*x_t'))^(2));                % store activation function
-				
+					
 				end
-			
-			w = w - alpha_n*grad_t; % update gradient descent
-		
+
+			w = w - (1/t)*grad_t;    % update gradient descent
+
+			h_hist(k,1) = sum(h.^2); % save loss function
 		end
 
 		% update economic model estimates
@@ -95,6 +99,7 @@ for i = 2:time
 	grad_t_h(i,:) = B;      % storing activation function and two weights from NN
 	
 end
+
 
 % plot results
 
@@ -129,3 +134,27 @@ figure;
 plot(grad_t_h);
 xlabel('Simulation Horizon')
 legend('Sigmoid Activation Function for \alpha_2','Sigmoid Activation Function for \beta_2');
+
+% plot 3D loss function, requires gridfit.m script
+
+x1 = alpha_2(1:max_iter);
+y1 = beta_2(1:max_iter);
+z  = h_hist;
+gx = min(x1):0.02:max(x1);
+gy = min(y1):0.02:max(y1);
+g  = gridfit(x1,y1,z,gx,gy);
+figure;
+surf(gx,gy,g);
+
+% setting axis
+
+xlabel('Parameter \alpha_2');
+ylabel('Parameter \beta_2');
+zlabel('Loss Function');
+
+% rotate title of axis
+
+set(get(gca,'xlabel'),'rotation',15); 
+set(get(gca,'ylabel'),'rotation',-25); 
+set(get(gca,'zlabel'),'rotation',90); 
+colormap(bone);
