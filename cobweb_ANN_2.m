@@ -137,7 +137,7 @@ xlabel('Simulation Horizon')
 
 x1 = alpha_2(1:max_iter);
 y1 = beta_2(1:max_iter);
-z  = -h_hist;
+z  = h_hist;
 gx = min(x1):0.02:max(x1);
 gy = min(y1):0.02:max(y1);
 g  = gridfit(x1,y1,z,gx,gy);
