@@ -6,7 +6,7 @@
 
 % Firstly, we load the same values of exogenous variable g 
 
-g_var  = load('w_lag.txt');   % g (exogenous) variable
+g_var  = load('w_lag.txt');       % g (exogenous) variable
 Shocks = load('Shocks_var.txt');  % shocks
 
 % Specify the parameters
@@ -45,11 +45,10 @@ p(1) = alpha_1+c*a(1)+delta*g_lag(1)+sigma*Shocks(1,1); %Initial values of p and
 
 % Neural Network initialization
 
-max_iter = 100;           % no of network iterations
-alpha_n  = 0.01;          % gradient descent learning rate, calibrate it to change convergence properties of ANN
-w        = zeros(1,2);    % weights for Neural Network 
-grad_t_h = zeros(time,2); % store network activation function
-
+max_iter = 100;               % no of network iterations
+alpha_n  = 0.01;              % gradient descent learning rate, calibrate it to change convergence properties of ANN
+w        = zeros(1,2);        % weights for Neural Network 
+grad_t_h = zeros(time,1);     % store network activation function
 h_hist   = zeros(max_iter,1); % save loss function
 
 % simulate the model
@@ -80,7 +79,7 @@ for i = 2:time
 
 					h = w*x_t' - y_t;                                               % compute hypothesis for each observation
 					grad_t = grad_t + 2*h*x_t*exp(-w*x_t')/((1+exp(-w*x_t'))^(2));  % sum hypothesis (we use sigmoid function here)
-					B = 2*h*x_t*exp(-w*x_t')/((1+exp(-w*x_t'))^(2));                % store activation function
+					B = 1/(1+exp(-w*x_t'));                                         % store activation function
 					
 				end
 
@@ -131,15 +130,14 @@ legend('Simulated Series from ANN', 'REE Value')
 % activation function
 
 figure;
-plot(grad_t_h);
+plot(grad_t_h,'k');
 xlabel('Simulation Horizon')
-legend('Sigmoid Activation Function for \alpha_2','Sigmoid Activation Function for \beta_2');
 
 % plot 3D loss function, requires gridfit.m script
 
 x1 = alpha_2(1:max_iter);
 y1 = beta_2(1:max_iter);
-z  = h_hist;
+z  = -h_hist;
 gx = min(x1):0.02:max(x1);
 gy = min(y1):0.02:max(y1);
 g  = gridfit(x1,y1,z,gx,gy);
@@ -157,4 +155,4 @@ zlabel('Loss Function');
 set(get(gca,'xlabel'),'rotation',15); 
 set(get(gca,'ylabel'),'rotation',-25); 
 set(get(gca,'zlabel'),'rotation',90); 
-colormap(bone);
+colormap(hot);
