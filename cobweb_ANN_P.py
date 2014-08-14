@@ -83,7 +83,10 @@ for i in range(2,time):
 
             h = np.dot(w,x_t) - y_t
             grad_t = grad_t + 2*x_t*h
-            B = 2*x_t*h
+            
+            # activation function
+
+            B = np.dot(w,x_t)
 
         # update weights
 
@@ -119,11 +122,9 @@ plt.title('Coefficient Alpha_2')
 plt.show()
 
 plt.figure
-plt.plot(grad_t_h[:,0],'k-.o',label='Activation Function for Alpha_2')
-plt.plot(grad_t_h[:,1],'m-.o',label='Activation Function for Beta_2')
+plt.plot(grad_t_h,'k-.o')
 plt.xlabel('Time Horizon')
 plt.title('Linear Activation Function')
-plt.legend(loc='upper right')
 plt.show()
 
 plt.figure
